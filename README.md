@@ -11,8 +11,8 @@ Instructions:
 
 Project Group Members:
 
-* Group Member Name 1 (Student ID #, email)
-* Group Member Name 2 (Student ID #, email)
+* Group Member Bhim Kandel (202488138 #, bkandel@mun.ca)
+* Group Member Usmani, Muhammad Awais (202388938 #, email)
 
 Project URL
 
