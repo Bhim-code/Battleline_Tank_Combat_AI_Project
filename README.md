@@ -13,7 +13,7 @@ Instructions:
 Project Group Members:
 
 * Group Member Bhim Kandel (202488138 #, bkandel@mun.ca)
-* Group Member Usmani, Muhammad Awais (202388938 #, email)
+* Group Member Usmani, Muhammad Awais (202388938 #, ausmani@mun.ca)
 
 Project URL
 
