@@ -10,3 +10,6 @@ npm start
 ```
 
 Open `http://localhost:3000`.
+
+
+# Add MongoDB connection and environment-aware server
