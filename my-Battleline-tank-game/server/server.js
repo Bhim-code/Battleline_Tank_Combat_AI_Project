@@ -18,6 +18,12 @@ app.get('*', (_req, res) => {
   res.sendFile(path.join(clientDir, 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`[Server] Listening on http://localhost:${PORT}`);
-});
+async function start() {
+  await connectDB();
+  app.listen(PORT, () => console.log(`[Server] Listening on http://localhost:${PORT}`));
+}
+
+// start();
+// app.listen(PORT, () => {
+//   console.log(`[Server] Listening on http://localhost:${PORT}`);
+// });
