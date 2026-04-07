@@ -2,12 +2,16 @@ require('dotenv').config();
 
 const express = require('express');
 const path = require('path');
+const connectDB = require('./db');
+const authRoutes = require('./api/auth');
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const clientDir = path.join(__dirname, '..', 'client');
 
 app.use(express.json());
+app.use('/api/auth', authRoutes);
 app.use(express.static(clientDir));
 
 app.get('/health', (_req, res) => {
@@ -22,8 +26,8 @@ async function start() {
   await connectDB();
   app.listen(PORT, () => console.log(`[Server] Listening on http://localhost:${PORT}`));
 }
+start();
 
-// start();
 // app.listen(PORT, () => {
 //   console.log(`[Server] Listening on http://localhost:${PORT}`);
 // });

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tank Frontline — Create Account</title>
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <link rel="stylesheet" href="css/auth.css"/>
+</head>
+<body class="auth-page">
+
+  <div class="auth-theme-btn">
+    <button class="theme-toggle" aria-label="Toggle theme">
+      <span class="icon-moon">🌙</span>
+      <span class="icon-sun">☀️</span>
+    </button>
+  </div>
+
+  <div class="auth-brand">
+    <span class="auth-logo">⬡ TANK FRONTLINE</span>
+    <span class="auth-brand-sub">Register your command unit</span>
+  </div>
+
+  <div class="card auth-card">
+    <div class="auth-card-header">
+      <div class="auth-card-title">Create account</div>
+      <div class="auth-card-sub">Join the frontline and track your progress</div>
+    </div>
+
+    <div class="alert alert-error" id="errorMsg">
+      <span class="alert-icon">⚠</span>
+      <span id="errorText"></span>
+    </div>
+    <div class="alert alert-success" id="successMsg">
+      <span class="alert-icon">✓</span>
+      <span id="successText"></span>
+    </div>
+
+    <div class="form-group">
+      <label for="name">Commander Name</label>
+      <div class="input-wrap">
+        <span class="input-icon">🪖</span>
+        <input type="text" id="name" placeholder="e.g. Cpt. Steel" autocomplete="name"/>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email Address</label>
+      <div class="input-wrap">
+        <span class="input-icon">✉</span>
+        <input type="email" id="email" placeholder="commander@frontline.mil" autocomplete="email"/>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password <span style="color:var(--text-muted);font-size:10px;font-weight:400;text-transform:none;letter-spacing:0">(min 6 characters)</span></label>
+      <div class="input-wrap">
+        <span class="input-icon">🔒</span>
+        <input type="password" id="password" placeholder="Create a password" autocomplete="new-password"/>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-block" id="signupBtn">Create account</button>
+
+    <div class="auth-footer">
+      Already have an account? <a href="login.html">Sign in</a>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>initSignupPage();</script>
+</body>
+</html>
