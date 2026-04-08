@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tank Frontline — Combat</title>
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <link rel="stylesheet" href="css/game.css"/>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ── Top navigation ──────────────────────────────────── -->
+  <nav class="top-bar">
+    <div class="top-bar-left">
+      <span class="top-bar-logo">⬡ TANK FRONTLINE</span>
+      <div class="top-bar-divider"></div>
+      <span class="top-bar-subtitle">Armored Combat Simulator</span>
+    </div>
+    <div class="top-bar-right">
+      <div class="player-badge">
+        <span class="player-badge-name" id="navPlayerName">Commander</span>
+        <span class="player-badge-score" id="navHighScore">Best: 0</span>
+      </div>
+      <a href="profile.html" class="btn btn-secondary">Profile</a>
+      <button class="btn btn-danger" id="logoutBtn">Logout</button>
+      <button class="theme-toggle" aria-label="Toggle theme">
+        <span class="icon-moon">🌙</span>
+        <span class="icon-sun">☀️</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── Canvas panel ────────────────────────────────────── -->
+  <section class="main-panel">
+    <div class="game-header">
+      <div class="title-block">
+        <h2>Combat Zone</h2>
+        <div class="sub">AI Enhanced · A* Pathfinding · Utility Scoring</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="startBtn">▶ Resume</button>
+        <button class="btn btn-secondary" id="pauseBtn">⏸ Pause</button>
+      </div>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="gameCanvas" width="1280" height="720"></canvas>
+    </div>
+  </section>
+
+  <!-- ── Side panel ──────────────────────────────────────── -->
+  <aside class="side-panel">
+
+    <!-- HUD -->
+    <div class="card">
+      <div class="card-title">Combat HUD</div>
+      <div class="stats-grid">
+        <div class="stat stat-wave">
+          <div class="stat-label">Wave</div>
+          <div class="stat-value" id="waveVal">1</div>
+        </div>
+        <div class="stat stat-score">
+          <div class="stat-label">Score</div>
+          <div class="stat-value" id="scoreVal">0</div>
+        </div>
+        <div class="stat stat-kills">
+          <div class="stat-label">Kills</div>
+          <div class="stat-value" id="killVal">0</div>
+        </div>
+        <div class="stat stat-enemies">
+          <div class="stat-label">Enemies</div>
+          <div class="stat-value" id="enemyVal">3</div>
+        </div>
+        <div class="stat full">
+          <div class="stat-label">Armor</div>
+          <div class="hp-bar-bg">
+            <div class="hp-bar-fill" id="hpFill" style="width:100%"></div>
+          </div>
+          <div class="hp-text" id="hpText">100 / 100</div>
+        </div>
+        <div class="stat full">
+          <div class="stat-label">Ammo</div>
+          <div class="ammo-pips" id="ammoPips"></div>
+          <div class="reload-bar-bg">
+            <div class="reload-bar-fill" id="reloadFill"></div>
+          </div>
+          <div class="reload-label" id="reloadLabel" style="display:none">Reloading...</div>
+        </div>
+        <div class="stat full">
+          <div class="stat-label">Status</div>
+          <div class="status-value" id="statusVal">Standby</div>
+          <div class="stat-msg" id="msgVal">Press Resume to begin</div>
+        </div>
+      </div>
+      <div class="hiscore-bar">Personal Best: <span class="val" id="hiscoreDisplay">0</span></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="card">
+      <div class="card-title">Controls</div>
+      <div class="ctrl-list">
+        <div class="ctrl-row"><span class="key">W / ↑</span>Drive forward</div>
+        <div class="ctrl-row"><span class="key">S / ↓</span>Reverse</div>
+        <div class="ctrl-row"><span class="key">A D / ←→</span>Rotate hull</div>
+        <div class="ctrl-row"><span class="key">Mouse</span>Aim turret</div>
+        <div class="ctrl-row"><span class="key">LMB / SPC</span>Fire shell</div>
+      </div>
+    </div>
+
+    <!-- Kill feed -->
+    <div class="card">
+      <div class="card-title">Kill Feed</div>
+      <div class="killfeed" id="killfeed">
+        <div class="kill-entry">— Awaiting contact —</div>
+      </div>
+    </div>
+
+  </aside>
+</div>
+
+<!-- Scripts: order matters -->
+<script src="js/api.js"></script>
+<script src="js/main.js"></script>
+<script src="js/controls.js"></script>
+<script src="js/turret.js"></script>
+<script src="js/player.js"></script>
+<script src="js/enemy.js"></script>
+<script src="js/bullets.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
