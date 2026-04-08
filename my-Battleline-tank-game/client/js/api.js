@@ -52,3 +52,15 @@ function requireAuth() {
   }
   return true;
 }
+
+function authHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${getToken()}`
+  };
+}
+
+async function apiGetProfile() {
+  const res = await fetch(`${API_BASE}/users/profile`, { headers: authHeaders() });
+  return readJson(res);
+}

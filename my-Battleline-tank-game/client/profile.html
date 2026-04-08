@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tank Frontline — Commander Profile</title>
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <link rel="stylesheet" href="css/profile.css"/>
+</head>
+<body>
+
+<!-- Sticky nav -->
+<nav class="profile-nav">
+  <span class="profile-nav-logo">⬡ TANK FRONTLINE</span>
+  <div class="profile-nav-right">
+    <a href="game.html" class="btn btn-primary">▶ Return to Battle</a>
+    <button class="btn btn-danger" id="logoutBtn">Logout</button>
+    <button class="theme-toggle" aria-label="Toggle theme">
+      <span class="icon-moon">🌙</span>
+      <span class="icon-sun">☀️</span>
+    </button>
+  </div>
+</nav>
+
+<div class="profile-wrap">
+
+  <!-- Header -->
+  <div class="profile-header">
+    <div class="profile-identity">
+      <div class="profile-avatar">🪖</div>
+      <div>
+        <div class="profile-name" id="profileName">Commander</div>
+        <div class="profile-email" id="profileEmail">Loading...</div>
+        <div class="profile-since" id="profileSince"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stat cards -->
+  <div class="profile-grid">
+    <div class="profile-stat ps-amber">
+      <div class="ps-label">High Score</div>
+      <div class="ps-value" id="statHighScore">0</div>
+    </div>
+    <div class="profile-stat ps-amber">
+      <div class="ps-label">Latest Score</div>
+      <div class="ps-value" id="statLatestScore">0</div>
+    </div>
+    <div class="profile-stat ps-green">
+      <div class="ps-label">Total Kills</div>
+      <div class="ps-value" id="statKills">0</div>
+    </div>
+    <div class="profile-stat ps-blue">
+      <div class="ps-label">Best Wave</div>
+      <div class="ps-value" id="statWave">1</div>
+    </div>
+    <div class="profile-stat ps-orange">
+      <div class="ps-label">Games Played</div>
+      <div class="ps-value" id="statGames">0</div>
+    </div>
+    <div class="profile-stat ps-amber">
+      <div class="ps-label">Member Since</div>
+      <div class="ps-value" style="font-size:18px;line-height:1.4" id="statJoined">—</div>
+    </div>
+  </div>
+
+  <!-- Session history -->
+  <div class="card history-section">
+    <h2>Recent Missions</h2>
+    <div id="historyContainer">
+      <div class="empty-history">
+        <span class="empty-icon">🎯</span>
+        No missions on record yet — deploy and fight!
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/profile.js"></script>
+</body>
+</html>
