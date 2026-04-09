@@ -7,9 +7,10 @@
 :root {
   --bg:       #06070e;
   --bg-subtle:     #0a0d16;
-  --panel:    #090e18;
+  --panel:    #0d1117;
     --panel-raised:  #161b27;
       --panel-hover:   #1c2333;
+      --border-light: #2d3a52; 
 
 
   --border:    #21293d;
@@ -22,7 +23,7 @@
   --blue-dim:      #3b82f6;
   --blue-bg:       rgba(96,165,250,.1);
 
-  --green:    #22c55e;
+  --green:    #3fb950;
     --green-dim:     #2ea043;
       --green-bg:      rgba(63,185,80,.1);
 --orange:        #fb923c;
@@ -30,7 +31,7 @@
   --orange-bg:     rgba(251,146,60,.1);
 
 
-  --red:      #ef4444;
+  --red:    #ff7b72;
     --red-dim:       #f85149;
   --red-bg:        rgba(255,123,114,.1);
   --red-border:    rgba(255,123,114,.25);
@@ -108,10 +109,10 @@ html, body {
   scroll-behavior: smooth; 
   overflow-x: hidden;
 }
-html, body { overflow-x: hidden; }
+
 
 body {
-  font-family: 'inter', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 400;
   line-height: 1.5;
@@ -215,7 +216,7 @@ color: #fff;
 .card {
   background: var(--panel-raised);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
     padding: 22px;
   position: relative;
   overflow: hidden;
