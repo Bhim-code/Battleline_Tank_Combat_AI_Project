@@ -2,8 +2,9 @@ const currentUser = getUser();
 if (!currentUser) window.location.replace('login.html');
 
 const navName = $('navPlayerName');
+const navHS = $('navHighScore');
 if (navName) navName.textContent = currentUser.name || 'Commander';
-
+let highScore = 0;
 let lastTime = performance.now();
 window.G = null;
 function createState() {
@@ -29,11 +30,23 @@ function createState() {
   };
 }
 
-
+async function saveScore() {
+  if (!getToken()) return;
+  try {
+    await apiSaveScore(window.G.score, window.G.kills, window.G.wave);
+    const stats = await apiGetStats();
+    highScore = stats.highScore || 0;
+    if (navHS) navHS.textContent = 'Best: ' + highScore;
+    if (hiscoreDisplay) hiscoreDisplay.textContent = highScore;
+  } catch (err) {
+    console.warn('[Game] Score save failed:', err.message || err);
+  }
+}
 
 function loop(now) {
   const dt = Math.min(32, now - lastTime);
   lastTime = now;
+  
   if (window.G.status === 'running') {
     updatePlayer(window.G.player, dt, window.G);
     for (const enemy of window.G.enemies) updateEnemy(enemy, window.G.player, dt, window.G);
@@ -44,14 +57,15 @@ function loop(now) {
     if (window.G.player.hp <= 0) {
       window.G.status = 'lost';
       window.G.message = 'Mission failed — press DEPLOY to restart';
+   saveScore();
     }
   }
-
+ 
   renderGame(window.G);
-  updateHUD(window.G, 0);
+  updateHUD(window.G, highScore);
   requestAnimationFrame(loop);
 }
-function startGame() {
+async function startGame() {
   window.G = createState();
   window.G.status = 'running';
   window.G.message = 'Sector secure. Engage hostiles.';
@@ -67,9 +81,15 @@ $('startBtn').addEventListener('click', startGame);
 $('pauseBtn').addEventListener('click', togglePause);
 
 $('logoutBtn').addEventListener('click', logout);
-
-window.G = createState();
-renderGame(window.G);
-updateHUD(window.G, 0);
-requestAnimationFrame(loop);
-
+(async function init() {
+  try {
+    const stats = await apiGetStats();
+    highScore = stats.highScore || 0;
+    if (navHS) navHS.textContent = 'Best: ' + highScore;
+    if (hiscoreDisplay) hiscoreDisplay.textContent = highScore;
+  } catch {}
+  window.G = createState();
+  renderGame(window.G);
+  updateHUD(window.G, highScore);
+  requestAnimationFrame(loop);
+})();
