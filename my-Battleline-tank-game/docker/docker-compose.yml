@@ -1,0 +1,42 @@
+# ============================================================
+# docker-compose.yml — Tank Frontline full-stack deployment
+#
+# Run from the project root (tank-frontline/):
+#   docker compose -f docker/docker-compose.yml up --build
+#
+# Or copy this file to the project root and run:
+#   docker compose up --build
+# ============================================================
+
+version: '3.9'
+
+services:
+
+  # ── Node.js application ──────────────────────────────────────
+  app:
+    build:
+      context: ..              # project root (tank-frontline/)
+      dockerfile: docker/Dockerfile
+    container_name: tankfrontline-app
+    ports:
+      - "3000:3000"
+    environment:
+      PORT:       3000
+      MONGO_URI:  mongodb://mongo:27017/tankfrontline
+      JWT_SECRET: change_this_to_a_secure_random_string_in_production
+    depends_on:
+      - mongo
+    restart: unless-stopped
+
+  # ── MongoDB ──────────────────────────────────────────────────
+  mongo:
+    image: mongo:7
+    container_name: tankfrontline-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
