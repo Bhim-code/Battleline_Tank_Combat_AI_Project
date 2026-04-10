@@ -60,6 +60,18 @@ function authHeaders() {
   };
 }
 
+async function apiSaveScore(score, kills, wave) {
+  const res = await fetch(`${API_BASE}/game/save`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ score, kills, wave })
+  });
+  return readJson(res);
+}
+async function apiGetStats() {
+  const res = await fetch(`${API_BASE}/game/stats`, { headers: authHeaders() });
+  return readJson(res);
+}
 async function apiGetProfile() {
   const res = await fetch(`${API_BASE}/users/profile`, { headers: authHeaders() });
   return readJson(res);
