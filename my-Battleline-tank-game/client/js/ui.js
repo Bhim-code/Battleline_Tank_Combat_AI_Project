@@ -697,3 +697,375 @@ function drawPickup(p) {
 }
 
 // ── EFFECTS — cinematic explosions ───────────────────────────
+
+// ── EFFECTS — cinematic explosions ───────────────────────────
+function drawEffects(G) {
+  for (const e of G.effects) {
+    const ratio = e.ttl / e.maxTtl;
+    const inv   = 1 - ratio;
+
+    if (e.type === 'shockwave') {
+      ctx.save();
+      ctx.globalAlpha = ratio * 0.7;
+      // Double ring
+      ctx.strokeStyle = 'rgba(255,230,120,.9)'; ctx.lineWidth = 4*(1-ratio)+1;
+      ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, Math.PI*2); ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,180,60,.4)'; ctx.lineWidth = 8*(1-ratio);
+      ctx.beginPath(); ctx.arc(e.x, e.y, e.r*0.7, 0, Math.PI*2); ctx.stroke();
+      ctx.restore();
+
+    } else if (e.type === 'fireball') {
+      ctx.save(); ctx.globalAlpha = ratio * 0.95;
+      // Core white-hot
+      const g1 = ctx.createRadialGradient(e.x,e.y,0, e.x,e.y, e.r*0.4);
+      g1.addColorStop(0,'rgba(255,255,255,1)');
+      g1.addColorStop(1,'rgba(255,240,100,0)');
+      ctx.fillStyle = g1; ctx.beginPath(); ctx.arc(e.x,e.y,e.r*0.4,0,Math.PI*2); ctx.fill();
+      // Orange fireball
+      const g2 = ctx.createRadialGradient(e.x,e.y,0, e.x,e.y,e.r);
+      g2.addColorStop(0,  'rgba(255,220,80,.95)');
+      g2.addColorStop(0.3,'rgba(255,120,20,.9)');
+      g2.addColorStop(0.7,'rgba(180,40,5,.6)');
+      g2.addColorStop(1,  'rgba(60,10,0,0)');
+      ctx.fillStyle = g2; ctx.beginPath(); ctx.arc(e.x,e.y,e.r,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+
+    } else if (e.type === 'smokeBomb') {
+      const age = inv;
+      const rad = e.maxR * (0.3 + age * 0.85);
+      ctx.save(); ctx.globalAlpha = Math.min(0.6, 0.05 + ratio*0.55);
+      for (let layer = 0; layer < 3; layer++) {
+        const lr = rad * (0.5 + layer*0.25);
+        const ox = Math.sin(e.x*0.01 + layer*2.1) * rad*0.15;
+        const oy = Math.cos(e.y*0.01 + layer*1.7) * rad*0.1;
+        const sg = ctx.createRadialGradient(e.x+ox,e.y+oy,0, e.x+ox,e.y+oy,lr);
+        sg.addColorStop(0,   'rgba(70,65,60,.75)');
+        sg.addColorStop(0.4, 'rgba(90,85,78,.45)');
+        sg.addColorStop(0.8, 'rgba(110,105,95,.18)');
+        sg.addColorStop(1,   'rgba(130,125,115,0)');
+        ctx.fillStyle = sg;
+        ctx.beginPath(); ctx.arc(e.x+ox,e.y+oy,lr,0,Math.PI*2); ctx.fill();
+      }
+      // Orange ember tinge at base
+      ctx.globalAlpha *= 0.3;
+      ctx.strokeStyle = 'rgba(255,140,30,.5)'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(e.x, e.y, rad*0.25, 0, Math.PI*2); ctx.stroke();
+      ctx.restore();
+
+    } else if (e.type === 'emoji') {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0.1, ratio);
+      ctx.font = '36px Arial'; ctx.textAlign = 'center';
+      ctx.fillText(e.emoji, e.x, e.y - inv*32);
+      ctx.restore();
+    }
+  }
+}
+
+function drawParticles(G) {
+  for (const p of G.particles) {
+    const ratio = p.ttl / p.maxTtl;
+    if (p.type === 'spark') {
+      ctx.save();
+      ctx.globalAlpha = ratio;
+      // Glowing spark
+      const sg = ctx.createRadialGradient(p.x,p.y,0, p.x,p.y,4);
+      sg.addColorStop(0, p.color || '#ffee88');
+      sg.addColorStop(1, 'rgba(255,180,40,0)');
+      ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(p.x,p.y,4,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#ffffff'; ctx.globalAlpha = ratio*0.9;
+      ctx.fillRect(p.x-1, p.y-1, 2, 2);
+      ctx.restore();
+    } else if (p.type === 'muzzle') {
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.angle+Math.PI/2);
+      ctx.globalAlpha = ratio * 0.95;
+      // Glow behind flash
+      const mg = ctx.createRadialGradient(0,0,0,0,0,18);
+      mg.addColorStop(0,'rgba(255,240,160,.8)'); mg.addColorStop(1,'rgba(255,140,40,0)');
+      ctx.fillStyle = mg; ctx.beginPath(); ctx.arc(0,0,18,0,Math.PI*2); ctx.fill();
+      // Star shape
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.moveTo(0,-18);ctx.lineTo(5,-6);ctx.lineTo(16,-20);ctx.lineTo(9,0);
+      ctx.lineTo(17,7);ctx.lineTo(4,5);ctx.lineTo(0,20);ctx.lineTo(-4,5);
+      ctx.lineTo(-17,7);ctx.lineTo(-9,0);ctx.lineTo(-16,-20);ctx.lineTo(-5,-6);
+      ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+  }
+}
+
+// ── MINIMAP — tactical display ────────────────────────────────
+function drawMinimap(G) {
+  const mw=200, mh=114, mx=W-mw-14, my=14;
+  ctx.save();
+
+  // Background
+  ctx.globalAlpha = 0.92;
+  ctx.fillStyle = 'rgba(4,8,16,.82)';
+  roundRect2(ctx, mx-1,my-1,mw+2,mh+2,8); ctx.fill();
+
+  // Scan-line effect
+  ctx.globalAlpha = 0.04;
+  ctx.fillStyle = '#00ff44';
+  for (let sy=my; sy<my+mh; sy+=3) { ctx.fillRect(mx, sy, mw, 1); }
+
+  ctx.globalAlpha = 0.92;
+
+  // Border with glow
+  ctx.strokeStyle = 'rgba(212,168,67,.4)'; ctx.lineWidth = 1.5;
+  roundRect2(ctx, mx,my,mw,mh,7); ctx.stroke();
+
+  const sx=mw/W, sy2=mh/H;
+
+  // Obstacles
+  for (const o of G.obstacles) {
+    if (!o.solid) continue;
+    ctx.fillStyle = 'rgba(160,145,90,.22)';
+    ctx.fillRect(mx+o.x*sx, my+o.y*sy2, Math.max(1,o.w*sx), Math.max(1,o.h*sy2));
+  }
+
+  // Pickups
+  for (const p of G.pickups) {
+    ctx.fillStyle = p.type==='med' ? '#22c55e' : '#ef4444';
+    ctx.globalAlpha = 0.7 + 0.3*Math.sin(performance.now()/300);
+    ctx.fillRect(mx+p.x*sx-2, my+p.y*sy2-2, 4, 4);
+  }
+  ctx.globalAlpha = 0.92;
+
+  // Enemy dots with type-coloured halo
+  for (const e of G.enemies) {
+    const ec = e.type==='heavy'?'#ef4444':e.type==='scout'?'#60a5fa':'#f59e0b';
+    ctx.fillStyle = ec + '44';
+    ctx.beginPath(); ctx.arc(mx+e.x*sx, my+e.y*sy2, 5, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = ec;
+    ctx.beginPath(); ctx.arc(mx+e.x*sx, my+e.y*sy2, 2.5, 0, Math.PI*2); ctx.fill();
+  }
+
+  // Player dot — pulsing
+  const pp = 0.7 + 0.3*Math.sin(performance.now()/250);
+  ctx.fillStyle = 'rgba(74,222,128,' + pp*0.4 + ')';
+  ctx.beginPath(); ctx.arc(mx+G.player.x*sx, my+G.player.y*sy2, 6, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#4ade80';
+  ctx.beginPath(); ctx.arc(mx+G.player.x*sx, my+G.player.y*sy2, 3, 0, Math.PI*2); ctx.fill();
+
+  // Corner label
+  ctx.fillStyle = 'rgba(212,168,67,.55)';
+  ctx.font = '8px Share Tech Mono'; ctx.textAlign = 'left';
+  ctx.fillText('TACTICAL MAP', mx+6, my+mh-6);
+
+  // Wave indicator
+  ctx.textAlign = 'right';
+  ctx.fillText('W' + G.wave, mx+mw-6, my+mh-6);
+
+  ctx.restore();
+}
+
+// ── BULLETS — glowing tracer rounds ──────────────────────────
+function drawBullets(G) {
+  for (const b of G.bullets) {
+    const isPlayer = b.owner === 'player';
+    const tailX = b.x - b.vx * 3.5;
+    const tailY = b.y - b.vy * 3.5;
+
+    // Outer glow
+    ctx.save();
+    ctx.globalAlpha = 0.4;
+    ctx.strokeStyle = isPlayer ? 'rgba(255,230,100,.6)' : 'rgba(255,80,40,.5)';
+    ctx.lineWidth = 7;
+    ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(tailX, tailY); ctx.lineTo(b.x, b.y); ctx.stroke();
+    ctx.restore();
+
+    // Core tracer
+    ctx.strokeStyle = isPlayer ? 'rgba(255,240,160,.95)' : 'rgba(255,120,60,.95)';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(tailX, tailY); ctx.lineTo(b.x, b.y); ctx.stroke();
+
+    // Bright tip
+    const tipG = ctx.createRadialGradient(b.x,b.y,0, b.x,b.y,6);
+    tipG.addColorStop(0, isPlayer ? 'rgba(255,255,220,1)' : 'rgba(255,200,150,1)');
+    tipG.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = tipG;
+    ctx.beginPath(); ctx.arc(b.x, b.y, 6, 0, Math.PI*2); ctx.fill();
+  }
+}
+
+// ── AIM LINE — laser sight ────────────────────────────────────
+function drawAimLine(G) {
+  const ang = angTo(G.player.x, G.player.y, INPUT.mouse.x, INPUT.mouse.y);
+  const len = 100;
+  const ex  = G.player.x + Math.cos(ang) * len;
+  const ey  = G.player.y + Math.sin(ang) * len;
+
+  ctx.save();
+  // Glow
+  ctx.globalAlpha = 0.12;
+  ctx.strokeStyle = '#a0e060'; ctx.lineWidth = 6;
+  ctx.setLineDash([6, 8]);
+  ctx.beginPath(); ctx.moveTo(G.player.x, G.player.y); ctx.lineTo(ex, ey); ctx.stroke();
+  // Core
+  ctx.globalAlpha = 0.25;
+  ctx.strokeStyle = '#d0ff80'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(G.player.x, G.player.y); ctx.lineTo(ex, ey); ctx.stroke();
+  ctx.setLineDash([]);
+  // Dot at tip
+  ctx.globalAlpha = 0.5;
+  ctx.fillStyle = '#80ff40';
+  ctx.beginPath(); ctx.arc(ex, ey, 3, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+
+// ── OVERLAYS — title, pause, game over ───────────────────────
+function drawOverlay(G) {
+  if (G.status === 'running') return;
+
+  // Dark backdrop with scanlines
+  ctx.fillStyle = 'rgba(0,0,0,.52)'; ctx.fillRect(0,0,W,H);
+  ctx.save();
+  ctx.globalAlpha = 0.03;
+  ctx.fillStyle = '#00ff44';
+  for (let sy=0; sy<H; sy+=2) ctx.fillRect(0,sy,W,1);
+  ctx.restore();
+
+  // Stars in background
+  ctx.save();
+  for (const s of STARS) {
+    ctx.globalAlpha = s.a * 0.6;
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+
+  const cx = W/2, cy = H/2;
+  ctx.textAlign = 'center';
+
+  if (G.status === 'ready') {
+    // Title card
+    ctx.save();
+    // Amber glow behind title
+    const tg = ctx.createRadialGradient(cx,cy-40,10,cx,cy-40,220);
+    tg.addColorStop(0,'rgba(212,168,67,.22)'); tg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle = tg; ctx.fillRect(0,0,W,H);
+
+    ctx.shadowColor = 'rgba(212,168,67,.9)'; ctx.shadowBlur = 40;
+    ctx.fillStyle = '#f0c060';
+    ctx.font = 'bold 64px Share Tech Mono';
+    ctx.fillText('⬡ TANK FRONTLINE', cx, cy-24);
+    ctx.shadowBlur = 0;
+
+    ctx.font = '18px Share Tech Mono'; ctx.fillStyle = '#88a0b8';
+    ctx.fillText('ARMORED COMBAT SIMULATOR', cx, cy+18);
+
+    // Animated deploy button hint
+    const blink = Math.sin(performance.now()/400) > 0;
+    ctx.font = '22px Share Tech Mono';
+    ctx.fillStyle = blink ? '#f0c060' : 'rgba(240,192,96,.4)';
+    ctx.fillText('▶  PRESS DEPLOY TO BEGIN  ◀', cx, cy+68);
+
+    ctx.font = '11px Share Tech Mono'; ctx.fillStyle = 'rgba(120,140,160,.5)';
+    ctx.fillText('A* PATHFINDING  ·  UTILITY AI  ·  TACTICAL DECISIONS', cx, cy+104);
+    ctx.restore();
+
+  } else if (G.status === 'lost') {
+    // Red death glow
+    ctx.save();
+    const dg = ctx.createRadialGradient(cx,cy,10,cx,cy,280);
+    dg.addColorStop(0,'rgba(180,20,20,.3)'); dg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle = dg; ctx.fillRect(0,0,W,H);
+
+    ctx.shadowColor = 'rgba(255,60,60,.9)'; ctx.shadowBlur = 35;
+    ctx.fillStyle = '#ff5555';
+    ctx.font = 'bold 58px Share Tech Mono';
+    ctx.fillText('MISSION FAILED', cx, cy-20);
+    ctx.shadowBlur = 0;
+
+    ctx.font = '20px Share Tech Mono'; ctx.fillStyle = '#c8d8e8';
+    ctx.fillText(G.message, cx, cy+24);
+
+    const blink2 = Math.sin(performance.now()/500) > 0;
+    ctx.font = '17px Share Tech Mono';
+    ctx.fillStyle = blink2 ? '#f0c060' : 'rgba(240,192,96,.3)';
+    ctx.fillText('▶  PRESS DEPLOY TO RETRY  ◀', cx, cy+68);
+    ctx.restore();
+
+  } else if (G.status === 'paused') {
+    ctx.save();
+    ctx.shadowColor = 'rgba(100,180,255,.7)'; ctx.shadowBlur = 28;
+    ctx.fillStyle = '#a0c8f0';
+    ctx.font = 'bold 52px Share Tech Mono';
+    ctx.fillText('⏸  PAUSED', cx, cy-10);
+    ctx.shadowBlur = 0;
+    ctx.font = '18px Share Tech Mono'; ctx.fillStyle = '#6a8aaa';
+    ctx.fillText('Press PAUSE to resume', cx, cy+32);
+    ctx.restore();
+  }
+}
+
+// ── MASTER RENDER ─────────────────────────────────────────────
+function renderGame(G) {
+  ctx.clearRect(0, 0, W, H);
+  ctx.save();
+  ctx.translate(shake.x, shake.y);
+
+  // Ground + terrain
+  drawBackground(G);
+
+  // Decorative objects first (behind walls)
+  for (const o of G.obstacles) if (o.type === 'decor') drawObstacle(o);
+  // Solid obstacles
+  for (const o of G.obstacles) if (o.type !== 'decor') drawObstacle(o);
+
+  // Pickups
+  for (const p of G.pickups) drawPickup(p);
+
+  // Bullets (under effects so explosions cover them)
+  drawBullets(G);
+
+  // Explosions, smoke, emoji
+  drawEffects(G);
+  drawParticles(G);
+
+  // Aim line (under tanks)
+  if (G.status === 'running') drawAimLine(G);
+
+  // Enemies (drawn before player so player is always on top)
+  for (const e of G.enemies) {
+    drawDetailedTank(e.x, e.y, e.bodyAngle, e.turretAngle, {
+      team:'enemy',
+      bodyColor:    e.cfg.bodyColor,
+      turretColor:  e.cfg.turretColor,
+      hp:e.hp, maxHp:e.maxHp,
+      flashTimer:   e.flashTimer,
+      scale:        e.cfg.scale,
+      typeLabel:    e.cfg.label,
+      actionLabel:  e.actionLabel
+    });
+  }
+
+  // Player (on top of enemies)
+  drawDetailedTank(G.player.x, G.player.y, G.player.bodyAngle, G.player.turretAngle, {
+    team:'player', bodyColor:'#4e7232', turretColor:'#66923f',
+    hp:G.player.hp, maxHp:G.player.maxHp,
+    flashTimer:G.player.flashTimer, scale:1.08
+  });
+
+  // Minimap (always on top of game world)
+  drawMinimap(G);
+
+  ctx.restore(); // end shake transform
+
+  // Damage vignette (full-screen, outside shake)
+  if (G.damageFlash > 0) {
+    const dv = ctx.createRadialGradient(W/2,H/2,100, W/2,H/2,W*0.7);
+    dv.addColorStop(0, 'rgba(255,30,30,0)');
+    dv.addColorStop(1, 'rgba(255,30,30,' + (G.damageFlash/22*0.45) + ')');
+    ctx.fillStyle = dv; ctx.fillRect(0,0,W,H);
+    G.damageFlash--;
+  }
+
+  // Status overlays
+  drawOverlay(G);
+}
