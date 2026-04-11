@@ -29,15 +29,15 @@ function sanitizeCheckpoint(body = {}) {
     kills,
     message: typeof body.message === 'string' ? body.message.slice(0, 160) : '',
     player: body.player && typeof body.player === 'object' ? body.player : {},
-    enemies: [],
-    bullets: [],
-    particles: [],
-    effects: [],
-    trackMarks: [],
-    pickups: [],
-    dynamicCraters: [],
-    killLog: [],
-    damageFlash: 0
+    enemies: sanitizeList(body.enemies, 32),
+    bullets: sanitizeList(body.bullets, 200),
+    particles: sanitizeList(body.particles, 250),
+    effects: sanitizeList(body.effects, 120),
+    trackMarks: sanitizeList(body.trackMarks, 500),
+    pickups: sanitizeList(body.pickups, 64),
+    dynamicCraters: sanitizeList(body.dynamicCraters, 40),
+    killLog: sanitizeList(body.killLog, 10),
+    damageFlash: Math.max(0, sanitizeNumber(body.damageFlash, 0))
   };
 }
 
