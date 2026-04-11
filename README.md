@@ -25,5 +25,24 @@ Project Videos:
 
 Project Setup / Installation:
 
-* Your project setup and installation instructions go here
+# Tank Frontline
+
+Early full-stack setup for the Tank Frontline browser game.
+
+## Local run
+```bash
+cd server
+npm install
+npm start
+```
+
+Open `http://localhost:3000`.
+
+
+## Pre-release checklist
+
+- Run the stack with Docker Compose and confirm the app opens on `http://localhost:3000`.
+- Verify signup, login, profile loading, score saving, logout, and resume flow.
+- Keep local secrets in `server/.env` and commit only `server/.env.example`.
+
 * Feel free to include screenshots if you want
