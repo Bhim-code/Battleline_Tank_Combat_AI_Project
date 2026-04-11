@@ -65,15 +65,28 @@ function loop(now) {
   updateHUD(window.G, highScore);
   requestAnimationFrame(loop);
 }
-async function startGame() {
-  window.G = createState();
+async function startOrResumeGame() {
+  if (window.G.status === 'paused' && checkpointLoaded) {
+    window.G.status = 'running';
+    window.G.message = `Level ${window.G.wave} resumed`;
+    return;
+  }
+
+  if (window.G.status === 'running') return;
+
+  checkpointLoaded = false;
+  $('startBtn').textContent = '▶ DEPLOY';
+  try { await apiClearGameState(); } catch (err) { console.warn('[Game] Could not clear old checkpoint:', err.message || err); }
+
+  window.G = createState(1);
   window.G.status = 'running';
   window.G.message = 'Sector secure. Engage hostiles.';
+  autosaveAt = 0;
 }
 function togglePause() {
   if (!window.G) return;
   window.G.status = window.G.status === 'running' ? 'paused' : 'running';
-  window.G.message = window.G.status === 'paused' ? 'Mission paused' : 'Mission resumed';
+  window.G.message = window.G.status === 'paused' ? 'Mission paused' : 'Mission ready';
 }
 
 $('startBtn').addEventListener('click', startGame);

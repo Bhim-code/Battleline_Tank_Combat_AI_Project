@@ -16,6 +16,7 @@ async function readJson(res) {
   if (!res.ok) {
     const err = new Error(data.message || 'Request failed.');
     err.status = res.status;
+     err.payload = data;
     throw err;
   }
   return data;
@@ -74,5 +75,24 @@ async function apiGetStats() {
 }
 async function apiGetProfile() {
   const res = await fetch(`${API_BASE}/users/profile`, { headers: authHeaders() });
+  return readJson(res);
+}
+async function apiSaveGameState(payload, keepalive = false) {
+  const res = await fetch(`${API_BASE}/game/state`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(payload),
+    keepalive
+  });
+  return readJson(res);
+}
+
+async function apiGetGameState() {
+  const res = await fetch(`${API_BASE}/game/state`, { headers: authHeaders() });
+  return readJson(res);
+}
+
+async function apiClearGameState() {
+  const res = await fetch(`${API_BASE}/game/state`, { method: 'DELETE', headers: authHeaders() });
   return readJson(res);
 }
