@@ -1,7 +1,7 @@
 /* ============================================================
    api/game.js — /api/game routes: save score and load stats
    ============================================================ */
-
+const GameState = require('../models/GameState');
 const express = require('express');
 const router = express.Router();
 const GameStats = require('../models/GameStats');
@@ -11,6 +11,36 @@ const { protect } = require('../utils/middleware');
 function sanitizeNumber(value, fallback = 0) {
   return Number.isFinite(Number(value)) ? Number(value) : fallback;
 }
+function sanitizeList(list, limit) {
+  return Array.isArray(list) ? list.slice(0, limit) : [];
+}
+
+function sanitizeCheckpoint(body = {}) {
+  const level = Math.max(1, Math.floor(sanitizeNumber(body.level, 1)));
+  const score = Math.max(0, Math.floor(sanitizeNumber(body.score, 0)));
+  const kills = Math.max(0, Math.floor(sanitizeNumber(body.kills, 0)));
+  const status = ['ready', 'running', 'paused', 'lost'].includes(body.status) ? body.status : 'paused';
+
+  return {
+    active: true,
+    status,
+    level,
+    score,
+    kills,
+    message: typeof body.message === 'string' ? body.message.slice(0, 160) : '',
+    player: body.player && typeof body.player === 'object' ? body.player : {},
+    enemies: [],
+    bullets: [],
+    particles: [],
+    effects: [],
+    trackMarks: [],
+    pickups: [],
+    dynamicCraters: [],
+    killLog: [],
+    damageFlash: 0
+  };
+}
+
 
 router.post('/save', protect, async (req, res) => {
   try {
@@ -35,6 +65,7 @@ router.post('/save', protect, async (req, res) => {
     if (stats.sessions.length > 20) stats.sessions = stats.sessions.slice(-20);
 
     await stats.save();
+    await GameState.findOneAndDelete({ user: userId });
 
     res.json({
       message: 'Score saved.',
@@ -62,18 +93,86 @@ router.get('/stats', protect, async (req, res) => {
       });
     }
 
-    res.json({
-      highScore: stats.highScore,
-      latestScore: stats.latestScore,
-      totalKills: stats.totalKills,
-      bestWave: stats.bestWave,
-      gamesPlayed: stats.gamesPlayed,
-      sessions: [...stats.sessions].reverse()
-    });
+
+const sessions = [...stats.sessions].reverse();
+
+res.json({
+  highScore: stats.highScore,
+  latestScore: stats.latestScore,
+  totalKills: stats.totalKills,
+  bestWave: stats.bestWave,
+  gamesPlayed: stats.gamesPlayed,
+  sessions
+});
+
   } catch (err) {
     console.error('[Game] Stats error:', err.message);
     res.status(500).json({ message: 'Failed to load stats.' });
   }
 });
+
+router.get('/state', protect, async (req, res) => {
+  try {
+    const state = await GameState.findOne({ user: req.user.id, active: true }).lean();
+    if (!state) return res.json({ hasSavedGame: false });
+
+    res.json({
+      hasSavedGame: true,
+      state: {
+        status: state.status,
+        level: state.level,
+        score: state.score,
+        kills: state.kills,
+        message: state.message,
+        player: state.player || {},
+        enemies: state.enemies || [],
+        bullets: state.bullets || [],
+        particles: state.particles || [],
+        effects: state.effects || [],
+        trackMarks: state.trackMarks || [],
+        pickups: state.pickups || [],
+        dynamicCraters: state.dynamicCraters || [],
+        killLog: state.killLog || [],
+        damageFlash: state.damageFlash || 0,
+        updatedAt: state.updatedAt
+      }
+    });
+  } catch (err) {
+    console.error('[Game] Load state error:', err.message);
+    res.status(500).json({ message: 'Failed to load saved game.' });
+  }
+});
+
+router.post('/state', protect, async (req, res) => {
+  try {
+    const checkpoint = sanitizeCheckpoint(req.body);
+    const state = await GameState.findOneAndUpdate(
+      { user: req.user.id },
+      { user: req.user.id, ...checkpoint },
+      { new: true, upsert: true, setDefaultsOnInsert: true }
+    );
+
+    res.json({
+      message: 'Game checkpoint saved.',
+      level: state.level,
+      updatedAt: state.updatedAt
+    });
+  } catch (err) {
+    console.error('[Game] Save state error:', err.message);
+    res.status(500).json({ message: 'Failed to save game checkpoint.' });
+  }
+});
+
+router.delete('/state', protect, async (req, res) => {
+  try {
+    await GameState.findOneAndDelete({ user: req.user.id });
+    res.json({ message: 'Saved game cleared.' });
+  } catch (err) {
+    console.error('[Game] Clear state error:', err.message);
+    res.status(500).json({ message: 'Failed to clear saved game.' });
+  }
+});
+
+
 
 module.exports = router;
