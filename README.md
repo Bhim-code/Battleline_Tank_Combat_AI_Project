@@ -16,7 +16,7 @@ Project Group Members:
 
 Project URL
 
-* Paste your hosted web application URL here so I can test it
+http://23.22.69.70
 
 Project Videos:
 
