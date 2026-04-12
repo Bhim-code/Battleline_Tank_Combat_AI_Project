@@ -10,7 +10,6 @@ Players can create accounts, save scores after each session, and track their per
 
 ---
 
->>>>>>> f2b86be (some changes in card div)
 Project Group Members:
 
 * Group Member Bhim Kandel (202488138 #, bkandel@mun.ca)
