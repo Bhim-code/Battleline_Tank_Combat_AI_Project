@@ -354,7 +354,7 @@ canvas { display: block; width: 100%; height: 100%; object-fit: contain; }
   text-align: center;
   flex-shrink: 0;
 }
-}
+
 [data-theme="light"] .key {
   background: #f6f8fa;
   border-color: #d0d7de;
