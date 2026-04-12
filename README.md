@@ -1,6 +1,5 @@
 # 🎮 Battleline: Tank Combat AI
 
-<<<<<<< HEAD
 =======
 > ## 🧭 Overview
 
